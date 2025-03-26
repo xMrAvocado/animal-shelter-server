@@ -1,24 +1,23 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Dependency directories
+node_modules/
 
-node_modules
-dist
-dist-ssr
-*.local
+# Debug log from npm
+npm-debug.log
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Environment Variables should NEVER be published
+.env
+
+# macOS
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+*.lnk
+
+
+# VS Code
+.vscode/*
