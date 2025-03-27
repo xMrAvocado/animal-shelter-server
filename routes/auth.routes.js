@@ -134,3 +134,5 @@ router.get("/verify", verifyToken, (req, res) => {
     res.status(200).json({payload:req.payload})
 
 })
+
+module.exports = router;

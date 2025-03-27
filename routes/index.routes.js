@@ -1,11 +1,17 @@
-const router = require("express").Router();
+const express = require("express");
+const router = express.Router();
 
-// ℹ️ Test Route. Can be left and used for waking up the server if idle
 router.get("/", (req, res, next) => {
-  res.json("All good in here");
+  res.status(418).json({ message: "all good here!" });
 });
 
-const authRouter = require("./auth.routes");
-router.use("/auth", authRouter);
+const authRouter = require("./auth.routes")
+router.use("/auth", authRouter)
+
+const animalRouter = require("./animal.routes");
+router.use("/animals", animalRouter);
+
+const eventRouter = require("./event.routes");
+router.use("/events", eventRouter);
 
 module.exports = router;
