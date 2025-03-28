@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const Event = require(`../models/Event.model`);
+const { verifyToken } = require("../middlewares/auth.middlewares");
 
 router.post("/", async (req, res, next) => {
   try {
@@ -57,6 +58,30 @@ router.put("/:eventId", async (req, res, next) => {
       organizer: req.body.organizer,
       participants: req.body.participants,
     });
+    res.status(202).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch("/:eventId/participants", verifyToken, async (req, res, next) => {
+  try {
+    const eventObj = await Event.findById(req.params.eventId);
+    
+    let response;
+    if(eventObj.participants.includes(req.payload._id)){
+      response = await Event.findByIdAndUpdate(req.params.eventId, {
+        $pull: {participants: req.payload._id},
+      },{
+        new:true //IMPRIME ACTUALIZADA LA INFORMACION
+      });
+    }else{
+      response = await Event.findByIdAndUpdate(req.params.eventId, {
+        $addToSet: {participants: req.payload._id},
+      },{
+        new:true
+      });
+    }
     res.status(202).json(response);
   } catch (error) {
     next(error);

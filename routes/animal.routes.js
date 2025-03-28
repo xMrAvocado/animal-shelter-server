@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const Animal = require(`../models/Animal.model`);
+const { verifyToken } = require("../middlewares/auth.middlewares");
 
 router.post("/", async (req, res, next) => {
   try {
@@ -64,6 +65,42 @@ router.put("/:animalId", async (req, res, next) => {
       creator: req.body.creator,
     });
     res.status(202).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch("/:animalId/interested", verifyToken, async (req, res, next) => {
+  //verificar si existe el ObjectId del usuario dentro del array de interesados
+  //si no existe hago un push del ObjectId correspondiente
+  //si existe remover el ObjectId del array de interesados
+  try {
+    const animalObj = await Animal.findById(req.params.animalId);
+    
+    let response;
+    if(animalObj.interested.includes(req.payload._id)){
+      response = await Animal.findByIdAndUpdate(req.params.animalId, {
+        $pull: {interested: req.payload._id},
+      },{
+        new:true //IMPRIME ACTUALIZADA LA INFORMACION
+      });
+    }else{
+      response = await Animal.findByIdAndUpdate(req.params.animalId, {
+        $addToSet: {interested: req.payload._id},
+      },{
+        new:true
+      });
+    }
+    res.status(202).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/:animalId/interested", async (req, res, next) => {
+  try {
+    const response = await Animal.findById(req.params.animalId).populate("interested", "name email");
+    res.status(200).json(response);
   } catch (error) {
     next(error);
   }
