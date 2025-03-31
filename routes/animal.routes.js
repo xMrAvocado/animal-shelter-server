@@ -14,8 +14,7 @@ router.post("/", async (req, res, next) => {
       gender: req.body.gender,
       race: req.body.race,
       img: req.body.img,
-      interested: req.body.interested,
-      creator: req.body.creator,
+      creator: req.payload._id,
     });
     res.status(201).json(created);
   } catch (error) {
@@ -23,9 +22,9 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.get("/", async (req, res, next) => {
+router.get("/:animalType", async (req, res, next) => {
   try {
-    const response = await Animal.find();
+    const response = await Animal.find({type: req.params.animalType});
     res.status(200).json(response);
   } catch (error) {
     next(error);

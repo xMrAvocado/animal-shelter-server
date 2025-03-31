@@ -30,7 +30,7 @@ const animalSchema = new Schema({
     interested: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: "User",
-        default:null
+        default:[]
     },
     creator:{
         type: mongoose.Schema.Types.ObjectId,

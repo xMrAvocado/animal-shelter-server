@@ -22,7 +22,7 @@ const eventSchema = new Schema({
     participants: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: "User",
-        default:null}
+        default:[]}
 },{
     timestamps: true,
 })
