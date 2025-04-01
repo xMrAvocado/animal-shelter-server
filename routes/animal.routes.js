@@ -2,9 +2,9 @@ const express = require("express");
 const router = express.Router();
 
 const Animal = require(`../models/Animal.model`);
-const { verifyToken } = require("../middlewares/auth.middlewares");
+const { verifyToken, verifyAdminRole } = require("../middlewares/auth.middlewares");
 
-router.post("/", async (req, res, next) => {
+router.post("/", verifyToken, verifyAdminRole, async (req, res, next) => {
   try {
     const created = await Animal.create({
       name: req.body.name,
@@ -22,9 +22,9 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.get("/:animalType", async (req, res, next) => {
+router.get("/type/:animalType", async (req, res, next) => {
   try {
-    const response = await Animal.find({type: req.params.animalType});
+    const response = await Animal.find({type: req.params.animalType}).populate("creator").populate("interested");
     res.status(200).json(response);
   } catch (error) {
     next(error);
@@ -33,14 +33,14 @@ router.get("/:animalType", async (req, res, next) => {
 
 router.get("/:animalId", async (req, res, next) => {
   try {
-    const response = await Animal.findById(req.params.animalId);
+    const response = await Animal.findById(req.params.animalId).populate("creator");
     res.status(200).json(response);
   } catch (error) {
     next(error);
   }
 });
 
-router.delete("/:animalId", async (req, res, next) => {
+router.delete("/:animalId", verifyToken, verifyAdminRole, async (req, res, next) => {
   try {
     await Animal.findByIdAndDelete(req.params.animalId);
 
@@ -50,7 +50,7 @@ router.delete("/:animalId", async (req, res, next) => {
   }
 });
 
-router.put("/:animalId", async (req, res, next) => {
+router.put("/:animalId", verifyToken , async (req, res, next) => {
   try {
     const response = await Animal.findByIdAndUpdate(req.params.animalId, {
       name: req.body.name,
@@ -60,8 +60,6 @@ router.put("/:animalId", async (req, res, next) => {
       gender: req.body.gender,
       race: req.body.race,
       img: req.body.img,
-      interested: req.body.interested,
-      creator: req.body.creator,
     });
     res.status(202).json(response);
   } catch (error) {
@@ -96,7 +94,7 @@ router.patch("/:animalId/interested", verifyToken, async (req, res, next) => {
   }
 });
 
-router.get("/:animalId/interested", async (req, res, next) => {
+router.get("/:animalId/interested", verifyToken, verifyAdminRole, async (req, res, next) => {
   try {
     const response = await Animal.findById(req.params.animalId).populate("interested", "name email");
     res.status(200).json(response);

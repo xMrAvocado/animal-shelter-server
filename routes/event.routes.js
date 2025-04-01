@@ -2,16 +2,16 @@ const express = require("express");
 const router = express.Router();
 
 const Event = require(`../models/Event.model`);
-const { verifyToken } = require("../middlewares/auth.middlewares");
+const { verifyToken, verifyAdminRole } = require("../middlewares/auth.middlewares");
 
-router.post("/", async (req, res, next) => {
+router.post("/", verifyToken, verifyAdminRole, async (req, res, next) => {
   try {
     const created = await Event.create({
       name: req.body.name,
       date: req.body.date,
       time: req.body.time,
       description: req.body.description,
-      organizer: req.body.organizer,
+      organizer: req.payload._id,
       participants: req.body.participants,
     });
     res.status(201).json(created);
@@ -22,7 +22,7 @@ router.post("/", async (req, res, next) => {
 
 router.get("/", async (req, res, next) => {
   try {
-    const response = await Event.find();
+    const response = await Event.find().populate("organizer");
     res.status(200).json(response);
   } catch (error) {
     next(error);
@@ -31,14 +31,14 @@ router.get("/", async (req, res, next) => {
 
 router.get("/:eventId", async (req, res, next) => {
   try {
-    const response = await Event.findById(req.params.eventId);
+    const response = await Event.findById(req.params.eventId).populate("organizer");
     res.status(200).json(response);
   } catch (error) {
     next(error);
   }
 });
 
-router.delete("/:eventId", async (req, res, next) => {
+router.delete("/:eventId", verifyToken, verifyAdminRole, async (req, res, next) => {
   try {
     await Event.findByIdAndDelete(req.params.eventId);
 
@@ -48,15 +48,13 @@ router.delete("/:eventId", async (req, res, next) => {
   }
 });
 
-router.put("/:eventId", async (req, res, next) => {
+router.put("/:eventId", verifyToken, verifyAdminRole, async (req, res, next) => {
   try {
     const response = await Event.findByIdAndUpdate(req.params.eventId, {
       name: req.body.name,
       date: req.body.date,
       time: req.body.time,
       description: req.body.description,
-      organizer: req.body.organizer,
-      participants: req.body.participants,
     });
     res.status(202).json(response);
   } catch (error) {
