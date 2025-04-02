@@ -24,7 +24,7 @@ router.post("/", verifyToken, verifyAdminRole, async (req, res, next) => {
 
 router.get("/type/:animalType", async (req, res, next) => {
   try {
-    const response = await Animal.find({type: req.params.animalType}).populate("creator").populate("interested");
+    const response = await Animal.find({type: req.params.animalType}).populate("creator")
     res.status(200).json(response);
   } catch (error) {
     next(error);
@@ -33,7 +33,7 @@ router.get("/type/:animalType", async (req, res, next) => {
 
 router.get("/:animalId", async (req, res, next) => {
   try {
-    const response = await Animal.findById(req.params.animalId).populate("creator");
+    const response = await Animal.findById(req.params.animalId).populate("creator").populate("interested");
     res.status(200).json(response);
   } catch (error) {
     next(error);

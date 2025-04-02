@@ -1,8 +1,11 @@
 const express = require("express");
 const router = express.Router();
+const nodemailer =  require("nodemailer");
 
 const Event = require(`../models/Event.model`);
 const { verifyToken, verifyAdminRole } = require("../middlewares/auth.middlewares");
+
+
 
 router.post("/", verifyToken, verifyAdminRole, async (req, res, next) => {
   try {
@@ -31,7 +34,7 @@ router.get("/", async (req, res, next) => {
 
 router.get("/:eventId", async (req, res, next) => {
   try {
-    const response = await Event.findById(req.params.eventId).populate("organizer");
+    const response = await Event.findById(req.params.eventId).populate("organizer").populate("participants");
     res.status(200).json(response);
   } catch (error) {
     next(error);
@@ -40,7 +43,25 @@ router.get("/:eventId", async (req, res, next) => {
 
 router.delete("/:eventId", verifyToken, verifyAdminRole, async (req, res, next) => {
   try {
-    await Event.findByIdAndDelete(req.params.eventId);
+    //await Event.find(req.params.eventId).populate("participants");
+    //await Event.findByIdAndDelete(req.params.eventId);
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL, // sender address
+      to: process.env.EMAIL_REC, // list of receivers
+      subject: "Event cancelled", // Subject line
+      text: "Due to unexpected circumstaces we have to cancel todays event.", // plain text body
+      /*html: "<b>Hello world?</b>", // html body*/
+    });
+    console.log("Message sent: %s", info.messageId);
 
     res.status(202).json("Event deleted.");
   } catch (error) {

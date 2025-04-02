@@ -14,4 +14,11 @@ router.use("/animals", animalRouter);
 const eventRouter = require("./event.routes");
 router.use("/events", eventRouter);
 
+// ...
+
+const uploadRoutes = require("./upload.routes");
+router.use("/upload", uploadRoutes);
+
+// ...
+
 module.exports = router;
