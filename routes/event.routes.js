@@ -43,8 +43,13 @@ router.get("/:eventId", async (req, res, next) => {
 
 router.delete("/:eventId", verifyToken, verifyAdminRole, async (req, res, next) => {
   try {
-    //await Event.find(req.params.eventId).populate("participants");
-    //await Event.findByIdAndDelete(req.params.eventId);
+    const result = await Event.findById(req.params.eventId).populate("participants");
+    let emailsArr = result.participants.map((eachResult)=>{
+      return(eachResult.email)
+    })
+    let stringEmails = emailsArr.join(",");
+    
+    await Event.findByIdAndDelete(req.params.eventId);
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -56,7 +61,7 @@ router.delete("/:eventId", verifyToken, verifyAdminRole, async (req, res, next) 
 
     const info = await transporter.sendMail({
       from: process.env.EMAIL, // sender address
-      to: process.env.EMAIL_REC, // list of receivers
+      to: stringEmails, // list of receivers
       subject: "Event cancelled", // Subject line
       text: "Due to unexpected circumstaces we have to cancel todays event.", // plain text body
       /*html: "<b>Hello world?</b>", // html body*/
