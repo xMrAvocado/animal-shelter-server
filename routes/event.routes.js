@@ -51,6 +51,9 @@ router.delete("/:eventId", verifyToken, verifyAdminRole, async (req, res, next) 
     
     await Event.findByIdAndDelete(req.params.eventId);
 
+    if(emailsArr.length === 0){
+      return res.status(202).json("Event deleted.");
+    }
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
